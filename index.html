@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The CoachHeroic Brand Analyzer Tool</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Lucide Icons (Standalone version) -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+        body { 
+            font-family: 'Inter', sans-serif; 
+            font-size: 16px;
+            /* CORRECTED: Background is now the correct dark navy blue from the banner */
+            background-color: #264060; 
+        }
+        .dark body {
+            background-color: #0c1324; /* Darker blue for dark mode */
+        }
+        .brand-card {
+            background-color: white; 
+            border-radius: 1.5rem;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            border: 1px solid #e5e7eb;
+        }
+        .dark .brand-card {
+            background-color: #1f2937;
+            border-color: #374151;
+        }
+        /* Gradient button style from banner */
+        .btn-gradient {
+            background-image: linear-gradient(to right, #EF4444, #F97316);
+            color: white;
+            border: none;
+        }
+        .btn-gradient:hover {
+            opacity: 0.9;
+        }
+        /* Gradient text for headlines */
+        .text-gradient {
+            background-image: linear-gradient(to right, #EF4444, #F97316);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        
+        /* === NEW, FORCEFUL STYLING LOGIC === */
+        .card-text-blue {
+            color: #1E3A8A !important;
+        }
+        .dark .card-text-blue {
+            color: #d1d5db !important; /* light gray for dark mode */
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container mx-auto px-4 py-8 md:py-12">
+        <header class="text-center max-w-3xl mx-auto mb-8">
+            <h1 class="text-4xl md:text-5xl font-extrabold text-white tracking-tight">The CoachHeroic Brand Analyzer Tool</h1>
+            <p class="mt-4 text-lg text-white">
+                Study your competition, see how you stack up, and take what works to make your business better.
+            </p>
+        </header>
+
+        <div class="max-w-3xl mx-auto">
+            <form id="analysis-form" class="grid grid-cols-1 md:grid-cols-2 gap-4 items-end">
+                <div class="relative">
+                     <label for="company-url" class="block text-sm font-medium text-white mb-1">Your Company URL</label>
+                     <i data-lucide="link" class="absolute bottom-3 left-3 w-5 h-5 text-slate-400"></i>
+                     <input id="company-url" type="text" placeholder="e.g., 'yourbrand.com'" class="w-full pl-10 pr-4 py-3 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-orange-500 focus:outline-none transition" />
+                </div>
+                <div class="relative">
+                     <label for="competitor-url" class="block text-sm font-medium text-white mb-1">Competitor URL</label>
+                     <i data-lucide="link" class="absolute bottom-3 left-3 w-5 h-5 text-slate-400"></i>
+                     <input id="competitor-url" type="text" placeholder="e.g., 'competitor.com'" class="w-full pl-10 pr-4 py-3 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-orange-500 focus:outline-none transition" />
+                </div>
+                <button id="analyze-button" type="submit" class="md:col-span-2 flex items-center justify-center gap-2 btn-gradient font-semibold px-6 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200">
+                    <span id="button-text"><i data-lucide="search" class="inline-block w-5 h-5 mr-2"></i>Analyze Brands</span>
+                    <span id="button-loader" class="hidden"><i data-lucide="wind" class="inline-block w-5 h-5 mr-2 animate-spin"></i>Analyzing...</span>
+                </button>
+            </form>
+            <p id="error-message" class="text-red-300 mt-4 text-center"></p>
+        </div>
+
+        <main id="reports-container" class="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
+            <!-- Reports will be injected here -->
+        </main>
+         <div id="loader-container" class="text-center p-8 hidden"></div>
+    </div>
+
+    <script>
+        window.onload = () => {
+            const form = document.getElementById('analysis-form');
+            const companyUrlInput = document.getElementById('company-url');
+            const competitorUrlInput = document.getElementById('competitor-url');
+            const errorMessage = document.getElementById('error-message');
+            const reportsContainer = document.getElementById('reports-container');
+            const loaderContainer = document.getElementById('loader-container');
+            const analyzeButton = document.getElementById('analyze-button');
+            const buttonText = document.getElementById('button-text');
+            const buttonLoader = document.getElementById('button-loader');
+
+            const renderIcon = (name) => `<i data-lucide="${name}" class="w-5 h-5 text-[#1E3A8A] dark:text-slate-400"></i>`;
+            const renderStrategicIcon = (name) => `<i data-lucide="${name}" class="w-6 h-6 flex-shrink-0"></i>`;
+
+            const renderInfoCard = (icon, title, content, customClass = '') => `
+                <div class="brand-card ${customClass}">
+                    <div class="flex items-center gap-4 mb-4">
+                        <div class="bg-blue-100 dark:bg-slate-700 p-2 rounded-lg">${renderIcon(icon)}</div>
+                        <h3 class="text-lg font-bold text-gradient">${title}</h3>
+                    </div>
+                    <div class="space-y-3">${content}</div>
+                </div>`;
+
+            const renderKeyValueRow = (label, value) => `
+                <div class="flex justify-between items-start gap-4">
+                    <p class="font-medium card-text-blue dark:card-text-blue flex-shrink-0">${label}:</p>
+                    <div class="text-right card-text-blue dark:card-text-blue">${value}</div>
+                </div>`;
+
+            const renderScoreBar = (score, label, textColorClass, barColorClass) => `
+                <div>
+                    <div class="flex justify-between mb-1">
+                        <span class="text-sm font-medium card-text-blue dark:card-text-blue">${label}</span>
+                        <span class="text-sm font-bold ${textColorClass}">${score}/10</span>
+                    </div>
+                    <div class="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2.5">
+                        <div class="${barColorClass} h-2.5 rounded-full" style="width: ${score * 10}%"></div>
+                    </div>
+                </div>`;
+            
+            const renderTag = (text, customClass) => `<span class="inline-block px-2.5 py-0.5 rounded-full text-xs font-medium ${customClass}">${text}</span>`;
+
+            const renderContentStrategyChart = (mix) => {
+                const colors = { Educational: 'bg-red-500', Promotional: 'bg-orange-500', Community: 'bg-blue-800', Culture: 'bg-slate-500' };
+                let chartHtml = '<div class="space-y-2">';
+                for (const [key, value] of Object.entries(mix || {})) {
+                    chartHtml += `<div><div class="flex justify-between text-xs mb-1"><span class="card-text-blue dark:card-text-blue">${key}</span><span class="card-text-blue dark:card-text-blue">${value}%</span></div><div class="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2"><div class="${colors[key] || 'bg-slate-400'} h-2 rounded-full" style="width: ${value}%"></div></div></div>`;
+                }
+                return chartHtml + '</div>';
+            };
+            
+            const renderStrategicTakeawayCard = (icon, title, content, className) => `
+                <div class="p-4 rounded-lg ${className}">
+                    <div class="flex items-center gap-3 mb-2">${renderStrategicIcon(icon)}<h4 class="font-semibold text-md">${title}</h4></div>
+                    <p class="text-sm leading-relaxed">${content}</p>
+                </div>`;
+
+            const renderFullReport = (data, title) => {
+                const { brandIdentity, messaging, trust, seoAndKeywords, contentStrategy, crunchbase, socialMedia, strategicTakeaways } = data;
+                const identityContent = `${renderKeyValueRow('Primary Colors', `<div class="flex gap-2 justify-end">${brandIdentity.primaryColors.map(c => `<div class="w-5 h-5 rounded-full border border-slate-300" style="background-color: ${c}"></div>`).join('')}</div>`)}${renderKeyValueRow('Font Styles', brandIdentity.fontStyles.join(', '))}${renderKeyValueRow('Logo', brandIdentity.logoDescription)}${renderKeyValueRow('Imagery', brandIdentity.imageryStyle)}${renderScoreBar(brandIdentity.visualConsistencyScore, 'Visual Consistency', 'text-[#1E3A8A]', 'bg-orange-500')}`;
+                const messagingContent = `${renderKeyValueRow('Headline', `"${messaging.homepageHeadline}"`)}${renderKeyValueRow('Value Prop.', messaging.valueProposition)}${renderKeyValueRow('Tone', renderTag(messaging.toneOfVoice, 'bg-orange-100 text-orange-800'))}${renderKeyValueRow('Target', renderTag(messaging.targetCustomer, 'bg-blue-100 text-blue-800'))}${renderKeyValueRow('Main CTA', renderTag(messaging.mainCTA, 'bg-red-100 text-red-800'))}`;
+                const seoContent = `${renderKeyValueRow('Strength', seoAndKeywords.seoStrength)}${renderKeyValueRow('Keywords', `<div class="flex flex-wrap gap-1 justify-end">${seoAndKeywords.topKeywords.map(k => renderTag(k, 'bg-orange-100 text-orange-800')).join('')}</div>`)}`;
+                const crunchbaseContent = `${renderKeyValueRow('Founded', crunchbase.foundedYear)}${renderKeyValueRow('Founders', crunchbase.founders.join(', '))}${renderKeyValueRow('Location', crunchbase.location)}${renderKeyValueRow('Funding', `${crunchbase.lastFundingRound} (${crunchbase.totalFunding} total)`)}`;
+                const socialContent = `${renderKeyValueRow('Trust Signals', trust.trustSignals.join(', '))}${renderKeyValueRow('Testimonials', trust.testimonials)}${renderScoreBar(socialMedia.socialVoiceConsistencyScore, 'Social Voice Consistency', 'text-[#1E3A8A]', 'bg-orange-500')}`;
+                const strategicContent = `${renderStrategicTakeawayCard('copy', 'Observed Strengths', strategicTakeaways.observedStrengths, 'bg-green-50 dark:bg-green-900/50 text-green-800 dark:text-green-200')}${renderStrategicTakeawayCard('zap', 'Potential Opportunities', strategicTakeaways.potentialOpportunities, 'bg-blue-50 dark:bg-blue-900/50 text-blue-800 dark:text-blue-200')}`;
+                
+                return `<div class="space-y-6"><h2 class="text-2xl font-bold text-center text-white">${title}</h2>${renderInfoCard('brain-circuit', 'Strategic Analysis', strategicContent, 'border-orange-500 border-2')}<div class="grid lg:grid-cols-2 gap-6">${renderInfoCard('briefcase', 'Brand Identity', identityContent)}${renderInfoCard('message-square', 'Messaging & Positioning', messagingContent)}${renderInfoCard('target', 'SEO & Keywords', seoContent)}${renderInfoCard('pie-chart', 'Content Strategy', renderContentStrategyChart(contentStrategy.contentMix))}${renderInfoCard('building', 'Crunchbase Snapshot', crunchbaseContent)}${renderInfoCard('thumbs-up', 'Social & Trust', socialContent)}</div></div>`;
+            };
+            
+            const renderSpinner = (status) => {
+                loaderContainer.innerHTML = `<div class="flex flex-col items-center justify-center p-8 text-center"><i data-lucide="wind" class="w-12 h-12 text-orange-500 animate-spin mb-4"></i><h2 class="text-xl font-semibold text-white">${status}</h2><p class="text-white mt-2">Synthesizing data from our knowledge base.</p></div>`;
+                lucide.createIcons();
+            };
+
+            const getIndustryFromUrl = (url) => {
+                if (!url) return 'General Business';
+                if (url.includes('fitness') || url.includes('gym') || url.includes('health')) return 'Fitness Media';
+                if (url.includes('saas') || url.includes('software') || url.includes('b2b')) return 'B2B SaaS';
+                if (url.includes('fashion') || url.includes('apparel')) return 'Fashion & Apparel';
+                if (url.includes('crypto') || url.includes('blockchain')) return 'Cryptocurrency';
+                if (url.includes('news') || url.includes('media')) return 'Digital Media';
+                if (url.includes('coach')) return 'Coaching & Consulting';
+                return 'General Technology';
+            };
+
+            const makeApiCall = async (prompt) => {
+                const apiKey = ""; 
+                const payload = { contents: [{ role: "user", parts: [{ text: prompt }] }], generationConfig: { responseMimeType: "application/json" } };
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+                const response = await fetch(apiUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+                if (!response.ok) {
+                    const errorBody = await response.json().catch(() => ({ message: response.statusText }));
+                    throw new Error(errorBody?.error?.message || response.statusText);
+                }
+                const result = await response.json();
+                if (result.candidates?.[0]?.content?.parts?.[0]?.text) {
+                    const cleanedText = result.candidates[0].content.parts[0].text.replace(/^```json\n/, '').replace(/\n```$/, '');
+                    return JSON.parse(cleanedText);
+                }
+                throw new Error("The model returned an empty or invalid response.");
+            };
+
+            const generateIndustryReport = (industry) => {
+                const prompt = `Generate a detailed and plausible brand analysis report for a fictional, representative company in the "${industry}" industry. Return a single JSON object. Schema: { "brandIdentity": { "primaryColors": ["#hex1"], "fontStyles": ["Font"], "logoDescription": "...", "imageryStyle": "...", "visualConsistencyScore": 10 }, "messaging": { "homepageHeadline": "...", "valueProposition": "...", "toneOfVoice": "...", "targetCustomer": "...", "mainCTA": "..." }, "trust": { "trustSignals": ["..."], "testimonials": "...", "certifications": ["..."] }, "seoAndKeywords": { "topKeywords": ["keyword1"], "seoStrength": "Weak" }, "contentStrategy": { "contentMix": { "Educational": 40, "Promotional": 30, "Community": 20, "Culture": 10 } }, "crunchbase": { "foundedYear": "...", "founders": ["..."], "location": "...", "lastFundingRound": "...", "totalFunding": "...", "topInvestors": ["..."] }, "socialMedia": { "linkedinSummary": "...", "twitterSummary": "...", "socialVoiceConsistencyScore": 10 }, "strategicTakeaways": { "observedStrengths": "What are the most effective strategies commonly used by successful brands in this industry?", "potentialOpportunities": "Identify potential market gaps or underserved customer segments within this industry." } }`;
+                return makeApiCall(prompt);
+            };
+
+            form.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const companyUrl = companyUrlInput.value.trim();
+                const competitorUrl = competitorUrlInput.value.trim();
+
+                if (!companyUrl) {
+                    errorMessage.textContent = "Please enter your company's URL.";
+                    return;
+                }
+
+                errorMessage.textContent = '';
+                reportsContainer.innerHTML = '';
+                loaderContainer.classList.remove('hidden');
+                analyzeButton.disabled = true;
+                buttonText.classList.add('hidden');
+                buttonLoader.classList.remove('hidden');
+                lucide.createIcons();
+
+                try {
+                    const companyIndustry = getIndustryFromUrl(companyUrl);
+                    renderSpinner(`Analyzing ${companyIndustry} industry...`);
+                    const companyData = await generateIndustryReport(companyIndustry);
+                    
+                    let competitorData = null;
+                    if (competitorUrl) {
+                        const competitorIndustry = getIndustryFromUrl(competitorUrl);
+                        renderSpinner(`Analyzing ${competitorIndustry} industry...`);
+                        competitorData = await generateIndustryReport(competitorIndustry);
+                    }
+                    
+                    let finalHtml = '';
+                    if (companyData) finalHtml += renderFullReport(companyData, `Your Industry (${companyIndustry})`);
+                    if (competitorData) finalHtml += renderFullReport(competitorData, `Competitor's Industry (${getIndustryFromUrl(competitorUrl)})`);
+                    reportsContainer.innerHTML = finalHtml;
+
+                } catch (err) {
+                    errorMessage.textContent = `Analysis failed. The API returned an error: "${err.message}". Please check the URLs and try again. If deploying on GitHub, ensure you have added your API key to the script.`;
+                } finally {
+                    loaderContainer.classList.add('hidden');
+                    analyzeButton.disabled = false;
+                    buttonText.classList.remove('hidden');
+                    buttonLoader.classList.add('hidden');
+                    lucide.createIcons();
+                }
+            });
+
+            lucide.createIcons();
+        };
+    </script>
+</body>
+</html>
