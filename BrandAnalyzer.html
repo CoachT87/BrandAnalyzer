@@ -1,0 +1,289 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta http-equiv="Content-Style-Type" content="text/css">
+  <title></title>
+  <meta name="Generator" content="Cocoa HTML Writer">
+  <meta name="CocoaVersion" content="2575.5">
+  <style type="text/css">
+    p.p1 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica}
+    p.p2 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica; min-height: 14.0px}
+  </style>
+</head>
+<body>
+<p class="p1">import React, { useState, useCallback } from 'react';</p>
+<p class="p1">import { Briefcase, Building, Link, Search, Wind, Copy, Zap, Target, PieChart, BrainCircuit, MessageSquare, ThumbsUp } from 'lucide-react';</p>
+<p class="p2"><br></p>
+<p class="p1">// --- Helper Components ---</p>
+<p class="p2"><br></p>
+<p class="p1">const IconWrapper = ({ icon: Icon, className = '' }) =&gt; (</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;div className={`bg-slate-100 dark:bg-slate-700 p-2 rounded-lg`}&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;Icon className={`w-5 h-5 text-slate-500 dark:text-slate-400 ${className}`} /&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</p>
+<p class="p1">);</p>
+<p class="p2"><br></p>
+<p class="p1">const InfoCard = ({ icon: Icon, title, children, className = '' }) =&gt; (</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;div className={`bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 ${className}`}&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div className="flex items-center gap-4 mb-4"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;IconWrapper icon={Icon} /&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;h3 className="text-lg font-semibold text-slate-800 dark:text-slate-100"&gt;{title}&lt;/h3&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div className="space-y-3 text-sm text-slate-600 dark:text-slate-300"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>{children}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</p>
+<p class="p1">);</p>
+<p class="p2"><br></p>
+<p class="p1">const KeyValueRow = ({ label, value }) =&gt; (</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;div className="flex justify-between items-start gap-4"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;p className="font-medium text-slate-500 dark:text-slate-400 flex-shrink-0"&gt;{label}:&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div className="text-right"&gt;{value}&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</p>
+<p class="p1">);</p>
+<p class="p2"><br></p>
+<p class="p1">const ScoreBar = ({ score, max = 10, label, colorClass }) =&gt; (</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div className="flex justify-between mb-1"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;span className="text-sm font-medium text-slate-600 dark:text-slate-300"&gt;{label}&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;span className={`text-sm font-bold ${colorClass}`}&gt;{score}/{max}&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2.5"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div className={`${colorClass} h-2.5 rounded-full`} style={{ width: `${(score / max) * 100}%` }}&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</p>
+<p class="p1">);</p>
+<p class="p2"><br></p>
+<p class="p1">const Tag = ({ text, className = 'bg-sky-100 text-sky-800 dark:bg-sky-900 dark:text-sky-300' }) =&gt; (</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;span className={`inline-block px-2.5 py-0.5 rounded-full text-xs font-medium ${className}`}&gt;{text}&lt;/span&gt;</p>
+<p class="p1">);</p>
+<p class="p2"><br></p>
+<p class="p1">const LoadingSpinner = ({ status }) =&gt; (</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;div className="flex flex-col items-center justify-center p-8 text-center"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;Wind className="w-12 h-12 text-sky-500 animate-spin mb-4" /&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;h2 className="text-xl font-semibold text-slate-700 dark:text-slate-200"&gt;{status}&lt;/h2&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;p className="text-slate-500 dark:text-slate-400 mt-2"&gt;Synthesizing data from our knowledge base.&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</p>
+<p class="p1">);</p>
+<p class="p2"><br></p>
+<p class="p1">const ContentStrategyChart = ({ mix }) =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const colors = { Educational: 'bg-sky-500', Promotional: 'bg-teal-500', Community: 'bg-amber-500', Culture: 'bg-indigo-500' };</p>
+<p class="p1"><span class="Apple-converted-space">    </span>return (</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div className="space-y-2"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>{Object.entries(mix || {}).map(([key, value]) =&gt; (</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div key={key}&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div className="flex justify-between text-xs mb-1"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;span&gt;{key}&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;span&gt;{value}%&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;div className={`${colors[key] || 'bg-slate-400'} h-2 rounded-full`} style={{ width: `${value}%` }}&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>))}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>);</p>
+<p class="p1">};</p>
+<p class="p2"><br></p>
+<p class="p1">const StrategicTakeawayCard = ({ icon: Icon, title, content, className }) =&gt; (</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;div className={`p-4 rounded-lg ${className}`}&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div className="flex items-center gap-3 mb-2"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;Icon className="w-6 h-6 flex-shrink-0" /&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;h4 className="font-semibold text-md"&gt;{title}&lt;/h4&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;p className="text-sm"&gt;{content}&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</p>
+<p class="p1">);</p>
+<p class="p2"><br></p>
+<p class="p1">// --- Main App Component ---</p>
+<p class="p2"><br></p>
+<p class="p1">export default function App() {</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const [companyUrl, setCompanyUrl] = useState('');</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const [competitorUrl, setCompetitorUrl] = useState('');</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const [companyReport, setCompanyReport] = useState(null);</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const [competitorReport, setCompetitorReport] = useState(null);</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const [isLoading, setIsLoading] = useState(false);</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const [loadingStatus, setLoadingStatus] = useState('');</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const [error, setError] = useState(null);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>const makeApiCall = async (prompt) =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const payload = {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>contents: [{ role: "user", parts: [{ text: prompt }] }],</p>
+<p class="p1"><span class="Apple-converted-space">            </span>generationConfig: { responseMimeType: "application/json" }</p>
+<p class="p1"><span class="Apple-converted-space">        </span>};</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const apiKey = ""; // Handled by environment</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>const response = await fetch(apiUrl, {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>method: 'POST',</p>
+<p class="p1"><span class="Apple-converted-space">            </span>headers: { 'Content-Type': 'application/json' },</p>
+<p class="p1"><span class="Apple-converted-space">            </span>body: JSON.stringify(payload)</p>
+<p class="p1"><span class="Apple-converted-space">        </span>});</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>if (!response.ok) {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const errorBody = await response.json().catch(() =&gt; ({ message: response.statusText }));</p>
+<p class="p1"><span class="Apple-converted-space">            </span>console.error("API Error Body:", errorBody);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>throw new Error(`${errorBody?.error?.message || response.statusText}`);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>const result = await response.json();</p>
+<p class="p1"><span class="Apple-converted-space">        </span>if (result.candidates &amp;&amp; result.candidates.length &gt; 0 &amp;&amp; result.candidates[0].content.parts.length &gt; 0) {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const text = result.candidates[0].content.parts[0].text;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const cleanedText = text.replace(/^```json\n/, '').replace(/\n```$/, '');</p>
+<p class="p1"><span class="Apple-converted-space">            </span>return JSON.parse(cleanedText);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>} else {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>console.error("API returned no candidates, possibly due to a safety block.", result);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>throw new Error("The model returned an empty response, which may be due to a content safety block.");</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">    </span>};</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>// Step 1: Get factual data</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const getFactualData = (nameOrUrl) =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const prompt = `</p>
+<p class="p1"><span class="Apple-converted-space">            </span>Based on your knowledge base, provide a factual data report for the company associated with the URL: "${nameOrUrl}".</p>
+<p class="p1"><span class="Apple-converted-space">            </span>Do NOT analyze or give opinions. Only return known or plausible data.</p>
+<p class="p1"><span class="Apple-converted-space">            </span>Return a single JSON object.</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>JSON Schema:</p>
+<p class="p1"><span class="Apple-converted-space">            </span>{</p>
+<p class="p1"><span class="Apple-converted-space">                </span>"brandIdentity": { "primaryColors": ["#hex1"], "fontStyles": ["Font"], "logoDescription": "...", "imageryStyle": "...", "visualConsistencyScore": 1-10 },</p>
+<p class="p1"><span class="Apple-converted-space">                </span>"messaging": { "homepageHeadline": "...", "valueProposition": "...", "toneOfVoice": "...", "targetCustomer": "...", "mainCTA": "..." },</p>
+<p class="p1"><span class="Apple-converted-space">                </span>"trust": { "trustSignals": ["..."], "testimonials": "...", "certifications": ["..."] },</p>
+<p class="p1"><span class="Apple-converted-space">                </span>"seoAndKeywords": { "topKeywords": ["keyword1"], "seoStrength": "Weak | Average | Strong" },</p>
+<p class="p1"><span class="Apple-converted-space">                </span>"contentStrategy": { "contentMix": { "Educational": 40, "Promotional": 30, "Community": 20, "Culture": 10 } },</p>
+<p class="p1"><span class="Apple-converted-space">                </span>"crunchbase": { "foundedYear": "...", "founders": ["..."], "location": "...", "lastFundingRound": "...", "totalFunding": "...", "topInvestors": ["..."] },</p>
+<p class="p1"><span class="Apple-converted-space">                </span>"socialMedia": { "linkedinSummary": "...", "twitterSummary": "...", "socialVoiceConsistencyScore": 1-10 }</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>`;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>return makeApiCall(prompt);</p>
+<p class="p1"><span class="Apple-converted-space">    </span>};</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>// Step 2: Get strategic analysis based on factual data</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const getStrategicTakeaways = (factualData) =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const prompt = `</p>
+<p class="p1"><span class="Apple-converted-space">            </span>Given the following factual brand data, act as a strategic brand consultant with a mindset like Alex Hormozi.</p>
+<p class="p1"><span class="Apple-converted-space">            </span>Focus on leverage and actionable insights.</p>
+<p class="p1"><span class="Apple-converted-space">            </span>Provide a strategic analysis based ONLY on the data provided.</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>Factual Data:</p>
+<p class="p1"><span class="Apple-converted-space">            </span>${JSON.stringify(factualData, null, 2)}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>Return a single JSON object with your analysis.</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>JSON Schema:</p>
+<p class="p1"><span class="Apple-converted-space">            </span>{</p>
+<p class="p1"><span class="Apple-converted-space">                </span>"evaluation": { "positioningClarity": "Clear | Moderate | Confusing", "visualBrandingQuality": "Weak | Average | Strong", "buyerResonance": "Low | Moderate | High", "differentiator": "..." },</p>
+<p class="p1"><span class="Apple-converted-space">                </span>"strategicTakeaways": {</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>"observedStrengths": "What are the most effective strategies in this data? What elements create the most leverage?",</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>"potentialOpportunities": "Based on this data, what market gaps or underserved customer needs could a competitor exploit?"</p>
+<p class="p1"><span class="Apple-converted-space">                </span>}</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>`;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>return makeApiCall(prompt);</p>
+<p class="p1"><span class="Apple-converted-space">    </span>};</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>const processCompany = async (url) =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>setLoadingStatus(`Retrieving facts for ${url}...`);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const factualData = await getFactualData(url);</p>
+<p class="p2"><span class="Apple-converted-space">        </span></p>
+<p class="p1"><span class="Apple-converted-space">        </span>setLoadingStatus(`Analyzing strategy for ${url}...`);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const strategicData = await getStrategicTakeaways(factualData);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>return { ...factualData, ...strategicData };</p>
+<p class="p1"><span class="Apple-converted-space">    </span>};</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>const handleAnalyze = async (e) =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>e.preventDefault();</p>
+<p class="p1"><span class="Apple-converted-space">        </span>if (!companyUrl.trim()) {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>setError("Please enter your company's URL.");</p>
+<p class="p1"><span class="Apple-converted-space">            </span>return;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>setIsLoading(true);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>setError(null);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>setCompanyReport(null);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>setCompetitorReport(null);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>try {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const companyData = await processCompany(companyUrl);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>setCompanyReport(companyData);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>if (competitorUrl.trim()) {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const competitorData = await processCompany(competitorUrl);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>setCompetitorReport(competitorData);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>} catch (err) {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>setError(`Analysis failed. The API returned an error: "${err.message}". This can happen due to content policies or if the company is not in the knowledge base. Please try a different URL.`);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>} finally {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>setIsLoading(false);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>setLoadingStatus('');</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">    </span>};</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>const BrandReportUI = ({ reportData, companyTitle }) =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>if (!reportData) return null;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const { brandIdentity, messaging, trust, seoAndKeywords, contentStrategy, crunchbase, socialMedia, strategicTakeaways, evaluation } = reportData;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>return (</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div className="space-y-6"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;h2 className="text-2xl font-bold text-center text-slate-800 dark:text-slate-100"&gt;{companyTitle}&lt;/h2&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>{strategicTakeaways &amp;&amp; (</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;InfoCard icon={BrainCircuit} title="Strategic Analysis" className="border-indigo-500 border-2"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;StrategicTakeawayCard icon={Copy} title="Observed Strengths" content={strategicTakeaways.observedStrengths} className="bg-green-50 dark:bg-green-900/50 text-green-800 dark:text-green-200" /&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;StrategicTakeawayCard icon={Zap} title="Potential Opportunities" content={strategicTakeaways.potentialOpportunities} className="bg-blue-50 dark:bg-blue-900/50 text-blue-800 dark:text-blue-200" /&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/InfoCard&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>)}</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div className="grid lg:grid-cols-2 gap-6"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>{brandIdentity &amp;&amp; &lt;InfoCard icon={Briefcase} title="Brand Identity"&gt;&lt;KeyValueRow label="Primary Colors" value={&lt;div className="flex gap-2 justify-end"&gt;{brandIdentity.primaryColors.map(c =&gt; &lt;div key={c} className="w-5 h-5 rounded-full border border-slate-300" style={{ backgroundColor: c }}&gt;&lt;/div&gt;)}&lt;/div&gt;} /&gt;&lt;KeyValueRow label="Font Styles" value={brandIdentity.fontStyles.join(', ')} /&gt;&lt;KeyValueRow label="Logo" value={brandIdentity.logoDescription} /&gt;&lt;KeyValueRow label="Imagery" value={brandIdentity.imageryStyle} /&gt;&lt;ScoreBar score={brandIdentity.visualConsistencyScore} label="Visual Consistency" colorClass="bg-sky-500" /&gt;&lt;/InfoCard&gt;}</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>{messaging &amp;&amp; &lt;InfoCard icon={MessageSquare} title="Messaging &amp; Positioning"&gt;&lt;KeyValueRow label="Headline" value={`"${messaging.homepageHeadline}"`} /&gt;&lt;KeyValueRow label="Value Prop." value={messaging.valueProposition} /&gt;&lt;KeyValueRow label="Tone" value={&lt;Tag text={messaging.toneOfVoice} /&gt;} /&gt;&lt;KeyValueRow label="Target" value={&lt;Tag text={messaging.targetCustomer} className="bg-teal-100 text-teal-800 dark:bg-teal-900 dark:text-teal-300" /&gt;} /&gt;&lt;KeyValueRow label="Main CTA" value={&lt;Tag text={messaging.mainCTA} className="bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-300" /&gt;} /&gt;&lt;/InfoCard&gt;}</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>{seoAndKeywords &amp;&amp; &lt;InfoCard icon={Target} title="SEO &amp; Keywords"&gt;&lt;KeyValueRow label="Strength" value={seoAndKeywords.seoStrength} /&gt;&lt;KeyValueRow label="Keywords" value={&lt;div className="flex flex-wrap gap-1 justify-end"&gt;{seoAndKeywords.topKeywords.map(k=&gt;&lt;Tag key={k} text={k} /&gt;)}&lt;/div&gt;} /&gt;&lt;/InfoCard&gt;}</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>{contentStrategy &amp;&amp; &lt;InfoCard icon={PieChart} title="Content Strategy"&gt;&lt;ContentStrategyChart mix={contentStrategy.contentMix} /&gt;&lt;/InfoCard&gt;}</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>{crunchbase &amp;&amp; &lt;InfoCard icon={Building} title="Crunchbase Snapshot"&gt;&lt;KeyValueRow label="Founded" value={crunchbase.foundedYear} /&gt;&lt;KeyValueRow label="Founders" value={crunchbase.founders.join(', ')} /&gt;&lt;KeyValueRow label="Location" value={crunchbase.location} /&gt;&lt;KeyValueRow label="Funding" value={`${crunchbase.lastFundingRound} (${crunchbase.totalFunding} total)`} /&gt;&lt;/InfoCard&gt;}</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>{socialMedia &amp;&amp; trust &amp;&amp; &lt;InfoCard icon={ThumbsUp} title="Social &amp; Trust"&gt;&lt;KeyValueRow label="Trust Signals" value={trust.trustSignals.join(', ')} /&gt;&lt;KeyValueRow label="Testimonials" value={trust.testimonials} /&gt;&lt;ScoreBar score={socialMedia.socialVoiceConsistencyScore} label="Social Voice Consistency" colorClass="bg-green-500" /&gt;&lt;/InfoCard&gt;}</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>);</p>
+<p class="p1"><span class="Apple-converted-space">    </span>};</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>return (</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div className="bg-slate-50 dark:bg-slate-900 min-h-screen font-sans"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div className="container mx-auto px-4 py-8 md:py-12"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;header className="text-center max-w-3xl mx-auto mb-8"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;h1 className="text-4xl md:text-5xl font-bold text-slate-800 dark:text-slate-100 tracking-tight"&gt;Brand Intelligence Assistant&lt;/h1&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;p className="mt-4 text-lg text-slate-600 dark:text-slate-400"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>Get an AI-generated brand analysis for any company. Enter a URL to generate a report based on the AI's extensive knowledge base.</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/header&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div className="max-w-3xl mx-auto"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;form onSubmit={handleAnalyze} className="grid grid-cols-1 md:grid-cols-2 gap-4 items-end"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;div className="relative"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1"&gt;Your Company URL&lt;/label&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;Link className="absolute bottom-3 left-3 w-5 h-5 text-slate-400" /&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;input type="text" value={companyUrl} onChange={(e) =&gt; setCompanyUrl(e.target.value)} placeholder="e.g., 'yourbrand.com'" className="w-full pl-10 pr-4 py-3 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-sky-500 focus:outline-none transition" /&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;div className="relative"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1"&gt;Competitor URL&lt;/label&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;Link className="absolute bottom-3 left-3 w-5 h-5 text-slate-400" /&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>&lt;input type="text" value={competitorUrl} onChange={(e) =&gt; setCompetitorUrl(e.target.value)} placeholder="e.g., 'competitor.com'" className="w-full pl-10 pr-4 py-3 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-sky-500 focus:outline-none transition" /&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;button type="submit" disabled={isLoading} className="md:col-span-2 flex items-center justify-center gap-2 bg-sky-600 text-white font-semibold px-6 py-3 rounded-lg hover:bg-sky-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-500 disabled:bg-slate-400 disabled:cursor-not-allowed transition-all duration-200"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                            </span>{isLoading ? &lt;&gt;&lt;Wind className="animate-spin w-5 h-5" /&gt; {loadingStatus || 'Analyzing...'}&lt;/&gt; : &lt;&gt;&lt;Search className="w-5 h-5" /&gt; Analyze Brands&lt;/&gt;}</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/form&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>{error &amp;&amp; &lt;p className="text-red-500 mt-4 text-center"&gt;{error}&lt;/p&gt;}</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;main className="mt-8"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>{isLoading &amp;&amp; !companyReport &amp;&amp; &lt;LoadingSpinner status={loadingStatus} /&gt;}</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;BrandReportUI reportData={companyReport} companyTitle="Your Brand" /&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                        </span>&lt;BrandReportUI reportData={competitorReport} companyTitle="Competitor" /&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/main&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>);</p>
+<p class="p1">}</p>
+</body>
+</html>
