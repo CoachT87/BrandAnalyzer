@@ -62,7 +62,9 @@
 
     <div class="container mx-auto px-4 py-8 md:py-12">
         <header class="text-center max-w-3xl mx-auto mb-8">
-            <h1 class="text-4xl md:text-5xl font-extrabold text-white tracking-tight">The CoachHeroic Brand Analyzer Tool</h1>
+            <h1 class="text-4xl md:text-5xl font-extrabold text-white tracking-tight">
+                The <span class="text-gradient">C</span>oach<span class="text-gradient">H</span>eroic Brand Analyzer Tool
+            </h1>
             <p class="mt-4 text-lg text-white">
                 Study your competition, see how you stack up, and take what works to make your business better.
             </p>
@@ -96,6 +98,14 @@
 
     <script>
         window.onload = () => {
+            // --- PRE-GENERATED DATA STORE ---
+            const industryDataStore = {
+                "Coaching & Consulting": { "brandIdentity": { "primaryColors": ["#1E3A8A", "#F97316"], "fontStyles": ["Montserrat"], "logoDescription": "Clean wordmark with a subtle, abstract shape suggesting growth.", "imageryStyle": "Professional headshots, images of clients having breakthroughs.", "visualConsistencyScore": 8 }, "messaging": { "homepageHeadline": "Unlock Your Potential, Achieve Your Goals", "valueProposition": "Providing certified coaching to help professionals overcome obstacles and accelerate their career.", "toneOfVoice": "Empathetic, authoritative, and inspiring.", "targetCustomer": "Mid-career professionals and executives.", "mainCTA": "Book a Free Discovery Call" }, "trust": { "trustSignals": ["Client testimonials", "As Seen In logos (Forbes, Inc.)"], "testimonials": "Clients praise the personalized approach and actionable advice.", "certifications": ["ICF Certified Coach"] }, "seoAndKeywords": { "topKeywords": ["executive coaching", "career coach", "leadership development"], "seoStrength": "Average" }, "contentStrategy": { "contentMix": { "Educational": 50, "Promotional": 20, "Community": 20, "Culture": 10 } }, "crunchbase": { "foundedYear": "2018", "founders": ["Jane Doe"], "location": "New York, NY", "lastFundingRound": "N/A (Bootstrapped)", "totalFunding": "$0", "topInvestors": ["N/A"] }, "socialMedia": { "linkedinSummary": "Active with posts on leadership, productivity, and client success stories.", "twitterSummary": "Shares motivational quotes and engages with industry leaders.", "socialVoiceConsistencyScore": 9 }, "strategicTakeaways": { "observedStrengths": "Strong focus on a clear target audience (professionals) and a powerful, low-resistance offer (Free Discovery Call).", "potentialOpportunities": "Niche down further into specific industries (e.g., tech executives, healthcare leaders) to increase pricing power and resonance." } },
+                "Fitness Media": { "brandIdentity": { "primaryColors": ["#EF4444", "#000000"], "fontStyles": ["Bebas Neue"], "logoDescription": "Bold, strong typography, often with a dynamic icon like a lightning bolt or flame.", "imageryStyle": "High-energy workout videos, physique photos, and nutrition infographics.", "visualConsistencyScore": 9 }, "messaging": { "homepageHeadline": "Build Muscle, Lose Fat, Get Strong", "valueProposition": "No-nonsense, science-based workout and nutrition plans for serious results.", "toneOfVoice": "Direct, intense, and motivational.", "targetCustomer": "Men and women aged 25-45 serious about fitness.", "mainCTA": "Join Our Program" }, "trust": { "trustSignals": ["Transformation photos", "Expert endorsements"], "testimonials": "Users highlight the effectiveness of the programs and the no-excuses attitude.", "certifications": ["Certified Personal Trainers (CPT)"] }, "seoAndKeywords": { "topKeywords": ["strength training", "fat loss workout", "muscle building diet"], "seoStrength": "Strong" }, "contentStrategy": { "contentMix": { "Educational": 60, "Promotional": 30, "Community": 10, "Culture": 0 } }, "crunchbase": { "foundedYear": "2015", "founders": ["John Smith"], "location": "Austin, TX", "lastFundingRound": "N/A (Bootstrapped)", "totalFunding": "$0", "topInvestors": ["N/A"] }, "socialMedia": { "linkedinSummary": "Minimal presence, focuses on other platforms.", "twitterSummary": "Shares workout tips and short video clips.", "socialVoiceConsistencyScore": 8 }, "strategicTakeaways": { "observedStrengths": "Extremely clear niche and value proposition. The direct, intense tone resonates strongly with their target audience.", "potentialOpportunities": "Create programs for older demographics or specialized fitness goals (e.g., pre-natal fitness) to capture new market segments." } },
+                "B2B SaaS": { "brandIdentity": { "primaryColors": ["#4F46E5", "#10B981"], "fontStyles": ["Inter"], "logoDescription": "Minimalist, geometric icon with a clean sans-serif wordmark.", "imageryStyle": "Abstract 3D illustrations, product UI mockups, and diverse team photos.", "visualConsistencyScore": 9 }, "messaging": { "homepageHeadline": "The Operating System for Your Business", "valueProposition": "An all-in-one platform to streamline workflows, automate tasks, and increase team productivity.", "toneOfVoice": "Professional, innovative, and benefits-focused.", "targetCustomer": "SMBs and mid-market companies (Founders, VPs of Ops).", "mainCTA": "Request a Demo" }, "trust": { "trustSignals": ["Customer logos (e.g., Slack, Notion)", "G2/Capterra ratings"], "testimonials": "Customers emphasize time saved and improved efficiency.", "certifications": ["SOC 2 Type II", "GDPR Compliant"] }, "seoAndKeywords": { "topKeywords": ["project management software", "crm for small business", "team collaboration tool"], "seoStrength": "Strong" }, "contentStrategy": { "contentMix": { "Educational": 40, "Promotional": 40, "Community": 10, "Culture": 10 } }, "crunchbase": { "foundedYear": "2019", "founders": ["Alice Johnson", "Bob Williams"], "location": "San Francisco, CA", "lastFundingRound": "Series A - $20M", "totalFunding": "$25M", "topInvestors": ["Y Combinator", "Sequoia Capital"] }, "socialMedia": { "linkedinSummary": "Focuses on case studies, industry reports, and company news.", "twitterSummary": "Engages with tech influencers and shares product updates.", "socialVoiceConsistencyScore": 8 }, "strategicTakeaways": { "observedStrengths": "Heavy use of social proof (customer logos, reviews) builds immediate trust. A clear 'Request a Demo' CTA targets high-intent leads.", "potentialOpportunities": "Offer a free, feature-limited tier to capture a wider user base and create a bottom-up adoption model within larger companies." } },
+                "General Technology": { "brandIdentity": { "primaryColors": ["#3B82F6", "#EC4899"], "fontStyles": ["Roboto"], "logoDescription": "A simple, memorable abstract icon.", "imageryStyle": "Clean product shots, lifestyle images of people using the product.", "visualConsistencyScore": 7 }, "messaging": { "homepageHeadline": "Technology for a Better Future", "valueProposition": "Creating intuitive and powerful tools to solve everyday problems.", "toneOfVoice": "Optimistic, user-friendly, and modern.", "targetCustomer": "General consumers interested in technology.", "mainCTA": "Learn More" }, "trust": { "trustSignals": ["Press mentions (TechCrunch, The Verge)"], "testimonials": "Users love the design and ease of use.", "certifications": ["N/A"] }, "seoAndKeywords": { "topKeywords": ["new tech gadgets", "smart home devices", "consumer electronics"], "seoStrength": "Average" }, "contentStrategy": { "contentMix": { "Educational": 30, "Promotional": 50, "Community": 10, "Culture": 10 } }, "crunchbase": { "foundedYear": "2020", "founders": ["Sam Ray"], "location": "Palo Alto, CA", "lastFundingRound": "Seed - $5M", "totalFunding": "$5M", "topInvestors": ["Angel Investors"] }, "socialMedia": { "linkedinSummary": "Used for corporate announcements and hiring.", "twitterSummary": "Product launch announcements and engaging with tech news.", "socialVoiceConsistencyScore": 7 }, "strategicTakeaways": { "observedStrengths": "Strong, clean visual branding that appeals to a wide audience. Focus on benefits over features in their copy.", "potentialOpportunities": "Develop a pro-sumer or enterprise version of their product to open up a new, high-value revenue stream." } }
+            };
+
             const form = document.getElementById('analysis-form');
             const companyUrlInput = document.getElementById('company-url');
             const competitorUrlInput = document.getElementById('competitor-url');
@@ -149,11 +159,11 @@
 
             const renderFullReport = (data, title) => {
                 const { brandIdentity, messaging, trust, seoAndKeywords, contentStrategy, crunchbase, socialMedia, strategicTakeaways } = data;
-                const identityContent = `${renderKeyValueRow('Primary Colors', `<div class="flex gap-2 justify-end">${brandIdentity.primaryColors.map(c => `<div class="w-5 h-5 rounded-full border border-slate-300" style="background-color: ${c}"></div>`).join('')}</div>`)}${renderKeyValueRow('Font Styles', brandIdentity.fontStyles.join(', '))}${renderKeyValueRow('Logo', brandIdentity.logoDescription)}${renderKeyValueRow('Imagery', brandIdentity.imageryStyle)}${renderScoreBar(brandIdentity.visualConsistencyScore, 'Visual Consistency', 'text-[#1E3A8A]', 'bg-orange-500')}`;
+                const identityContent = `${renderKeyValueRow('Primary Colors', `<div class="flex gap-2 justify-end">${brandIdentity.primaryColors.map(c => `<div class="w-5 h-5 rounded-full border border-slate-300" style="background-color: ${c}"></div>`).join('')}</div>`)}${renderKeyValueRow('Font Styles', brandIdentity.fontStyles.join(', '))}${renderKeyValueRow('Logo', brandIdentity.logoDescription)}${renderKeyValueRow('Imagery', brandIdentity.imageryStyle)}${renderScoreBar(brandIdentity.visualConsistencyScore, 'Visual Consistency', 'card-text-blue', 'bg-orange-500')}`;
                 const messagingContent = `${renderKeyValueRow('Headline', `"${messaging.homepageHeadline}"`)}${renderKeyValueRow('Value Prop.', messaging.valueProposition)}${renderKeyValueRow('Tone', renderTag(messaging.toneOfVoice, 'bg-orange-100 text-orange-800'))}${renderKeyValueRow('Target', renderTag(messaging.targetCustomer, 'bg-blue-100 text-blue-800'))}${renderKeyValueRow('Main CTA', renderTag(messaging.mainCTA, 'bg-red-100 text-red-800'))}`;
                 const seoContent = `${renderKeyValueRow('Strength', seoAndKeywords.seoStrength)}${renderKeyValueRow('Keywords', `<div class="flex flex-wrap gap-1 justify-end">${seoAndKeywords.topKeywords.map(k => renderTag(k, 'bg-orange-100 text-orange-800')).join('')}</div>`)}`;
                 const crunchbaseContent = `${renderKeyValueRow('Founded', crunchbase.foundedYear)}${renderKeyValueRow('Founders', crunchbase.founders.join(', '))}${renderKeyValueRow('Location', crunchbase.location)}${renderKeyValueRow('Funding', `${crunchbase.lastFundingRound} (${crunchbase.totalFunding} total)`)}`;
-                const socialContent = `${renderKeyValueRow('Trust Signals', trust.trustSignals.join(', '))}${renderKeyValueRow('Testimonials', trust.testimonials)}${renderScoreBar(socialMedia.socialVoiceConsistencyScore, 'Social Voice Consistency', 'text-[#1E3A8A]', 'bg-orange-500')}`;
+                const socialContent = `${renderKeyValueRow('Trust Signals', trust.trustSignals.join(', '))}${renderKeyValueRow('Testimonials', trust.testimonials)}${renderScoreBar(socialMedia.socialVoiceConsistencyScore, 'Social Voice Consistency', 'card-text-blue', 'bg-orange-500')}`;
                 const strategicContent = `${renderStrategicTakeawayCard('copy', 'Observed Strengths', strategicTakeaways.observedStrengths, 'bg-green-50 dark:bg-green-900/50 text-green-800 dark:text-green-200')}${renderStrategicTakeawayCard('zap', 'Potential Opportunities', strategicTakeaways.potentialOpportunities, 'bg-blue-50 dark:bg-blue-900/50 text-blue-800 dark:text-blue-200')}`;
                 
                 return `<div class="space-y-6"><h2 class="text-2xl font-bold text-center text-white">${title}</h2>${renderInfoCard('brain-circuit', 'Strategic Analysis', strategicContent, 'border-orange-500 border-2')}<div class="grid lg:grid-cols-2 gap-6">${renderInfoCard('briefcase', 'Brand Identity', identityContent)}${renderInfoCard('message-square', 'Messaging & Positioning', messagingContent)}${renderInfoCard('target', 'SEO & Keywords', seoContent)}${renderInfoCard('pie-chart', 'Content Strategy', renderContentStrategyChart(contentStrategy.contentMix))}${renderInfoCard('building', 'Crunchbase Snapshot', crunchbaseContent)}${renderInfoCard('thumbs-up', 'Social & Trust', socialContent)}</div></div>`;
@@ -175,29 +185,7 @@
                 return 'General Technology';
             };
 
-            const makeApiCall = async (prompt) => {
-                const apiKey = ""; 
-                const payload = { contents: [{ role: "user", parts: [{ text: prompt }] }], generationConfig: { responseMimeType: "application/json" } };
-                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
-                const response = await fetch(apiUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
-                if (!response.ok) {
-                    const errorBody = await response.json().catch(() => ({ message: response.statusText }));
-                    throw new Error(errorBody?.error?.message || response.statusText);
-                }
-                const result = await response.json();
-                if (result.candidates?.[0]?.content?.parts?.[0]?.text) {
-                    const cleanedText = result.candidates[0].content.parts[0].text.replace(/^```json\n/, '').replace(/\n```$/, '');
-                    return JSON.parse(cleanedText);
-                }
-                throw new Error("The model returned an empty or invalid response.");
-            };
-
-            const generateIndustryReport = (industry) => {
-                const prompt = `Generate a detailed and plausible brand analysis report for a fictional, representative company in the "${industry}" industry. Return a single JSON object. Schema: { "brandIdentity": { "primaryColors": ["#hex1"], "fontStyles": ["Font"], "logoDescription": "...", "imageryStyle": "...", "visualConsistencyScore": 10 }, "messaging": { "homepageHeadline": "...", "valueProposition": "...", "toneOfVoice": "...", "targetCustomer": "...", "mainCTA": "..." }, "trust": { "trustSignals": ["..."], "testimonials": "...", "certifications": ["..."] }, "seoAndKeywords": { "topKeywords": ["keyword1"], "seoStrength": "Weak" }, "contentStrategy": { "contentMix": { "Educational": 40, "Promotional": 30, "Community": 20, "Culture": 10 } }, "crunchbase": { "foundedYear": "...", "founders": ["..."], "location": "...", "lastFundingRound": "...", "totalFunding": "...", "topInvestors": ["..."] }, "socialMedia": { "linkedinSummary": "...", "twitterSummary": "...", "socialVoiceConsistencyScore": 10 }, "strategicTakeaways": { "observedStrengths": "What are the most effective strategies commonly used by successful brands in this industry?", "potentialOpportunities": "Identify potential market gaps or underserved customer segments within this industry." } }`;
-                return makeApiCall(prompt);
-            };
-
-            form.addEventListener('submit', async (e) => {
+            form.addEventListener('submit', (e) => {
                 e.preventDefault();
                 const companyUrl = companyUrlInput.value.trim();
                 const competitorUrl = competitorUrlInput.value.trim();
@@ -215,32 +203,32 @@
                 buttonLoader.classList.remove('hidden');
                 lucide.createIcons();
 
-                try {
-                    const companyIndustry = getIndustryFromUrl(companyUrl);
-                    renderSpinner(`Analyzing ${companyIndustry} industry...`);
-                    const companyData = await generateIndustryReport(companyIndustry);
-                    
-                    let competitorData = null;
-                    if (competitorUrl) {
-                        const competitorIndustry = getIndustryFromUrl(competitorUrl);
-                        renderSpinner(`Analyzing ${competitorIndustry} industry...`);
-                        competitorData = await generateIndustryReport(competitorIndustry);
-                    }
-                    
-                    let finalHtml = '';
-                    if (companyData) finalHtml += renderFullReport(companyData, `Your Industry (${companyIndustry})`);
-                    if (competitorData) finalHtml += renderFullReport(competitorData, `Competitor's Industry (${getIndustryFromUrl(competitorUrl)})`);
-                    reportsContainer.innerHTML = finalHtml;
+                setTimeout(() => {
+                    try {
+                        const companyIndustry = getIndustryFromUrl(companyUrl);
+                        const companyData = industryDataStore[companyIndustry] || industryDataStore['General Technology'];
+                        
+                        let competitorData = null;
+                        if (competitorUrl) {
+                            const competitorIndustry = getIndustryFromUrl(competitorUrl);
+                            competitorData = industryDataStore[competitorIndustry] || industryDataStore['General Technology'];
+                        }
+                        
+                        let finalHtml = '';
+                        if (companyData) finalHtml += renderFullReport(companyData, `Your Industry (${companyIndustry})`);
+                        if (competitorData) finalHtml += renderFullReport(competitorData, `Competitor's Industry (${getIndustryFromUrl(competitorUrl)})`);
+                        reportsContainer.innerHTML = finalHtml;
 
-                } catch (err) {
-                    errorMessage.textContent = `Analysis failed. The API returned an error: "${err.message}". Please check the URLs and try again.`;
-                } finally {
-                    loaderContainer.classList.add('hidden');
-                    analyzeButton.disabled = false;
-                    buttonText.classList.remove('hidden');
-                    buttonLoader.classList.add('hidden');
-                    lucide.createIcons();
-                }
+                    } catch (err) {
+                        errorMessage.textContent = `An unexpected error occurred. Please try again.`;
+                    } finally {
+                        loaderContainer.classList.add('hidden');
+                        analyzeButton.disabled = false;
+                        buttonText.classList.remove('hidden');
+                        buttonLoader.classList.add('hidden');
+                        lucide.createIcons();
+                    }
+                }, 1500);
             });
 
             lucide.createIcons();
