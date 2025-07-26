@@ -1,0 +1,273 @@
+import React, { useState, useCallback } from 'react';
+import { Briefcase, Building, Link, Search, Wind, Copy, Zap, Target, PieChart, BrainCircuit, MessageSquare, ThumbsUp } from 'lucide-react';
+
+// --- Helper Components ---
+
+const IconWrapper = ({ icon: Icon, className = '' }) => (
+    <div className={`bg-slate-100 dark:bg-slate-700 p-2 rounded-lg`}>
+        <Icon className={`w-5 h-5 text-slate-500 dark:text-slate-400 ${className}`} />
+    </div>
+);
+
+const InfoCard = ({ icon: Icon, title, children, className = '' }) => (
+    <div className={`bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 ${className}`}>
+        <div className="flex items-center gap-4 mb-4">
+            <IconWrapper icon={Icon} />
+            <h3 className="text-lg font-semibold text-slate-800 dark:text-slate-100">{title}</h3>
+        </div>
+        <div className="space-y-3 text-sm text-slate-600 dark:text-slate-300">
+            {children}
+        </div>
+    </div>
+);
+
+const KeyValueRow = ({ label, value }) => (
+    <div className="flex justify-between items-start gap-4">
+        <p className="font-medium text-slate-500 dark:text-slate-400 flex-shrink-0">{label}:</p>
+        <div className="text-right">{value}</div>
+    </div>
+);
+
+const ScoreBar = ({ score, max = 10, label, colorClass }) => (
+    <div>
+        <div className="flex justify-between mb-1">
+            <span className="text-sm font-medium text-slate-600 dark:text-slate-300">{label}</span>
+            <span className={`text-sm font-bold ${colorClass}`}>{score}/{max}</span>
+        </div>
+        <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2.5">
+            <div className={`${colorClass} h-2.5 rounded-full`} style={{ width: `${(score / max) * 100}%` }}></div>
+        </div>
+    </div>
+);
+
+const Tag = ({ text, className = 'bg-sky-100 text-sky-800 dark:bg-sky-900 dark:text-sky-300' }) => (
+    <span className={`inline-block px-2.5 py-0.5 rounded-full text-xs font-medium ${className}`}>{text}</span>
+);
+
+const LoadingSpinner = ({ status }) => (
+    <div className="flex flex-col items-center justify-center p-8 text-center">
+        <Wind className="w-12 h-12 text-sky-500 animate-spin mb-4" />
+        <h2 className="text-xl font-semibold text-slate-700 dark:text-slate-200">{status}</h2>
+        <p className="text-slate-500 dark:text-slate-400 mt-2">Synthesizing data from our knowledge base.</p>
+    </div>
+);
+
+const ContentStrategyChart = ({ mix }) => {
+    const colors = { Educational: 'bg-sky-500', Promotional: 'bg-teal-500', Community: 'bg-amber-500', Culture: 'bg-indigo-500' };
+    return (
+        <div className="space-y-2">
+            {Object.entries(mix || {}).map(([key, value]) => (
+                <div key={key}>
+                    <div className="flex justify-between text-xs mb-1">
+                        <span>{key}</span>
+                        <span>{value}%</span>
+                    </div>
+                    <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2">
+                        <div className={`${colors[key] || 'bg-slate-400'} h-2 rounded-full`} style={{ width: `${value}%` }}></div>
+                    </div>
+                </div>
+            ))}
+        </div>
+    );
+};
+
+const StrategicTakeawayCard = ({ icon: Icon, title, content, className }) => (
+    <div className={`p-4 rounded-lg ${className}`}>
+        <div className="flex items-center gap-3 mb-2">
+            <Icon className="w-6 h-6 flex-shrink-0" />
+            <h4 className="font-semibold text-md">{title}</h4>
+        </div>
+        <p className="text-sm">{content}</p>
+    </div>
+);
+
+// --- Main App Component ---
+
+export default function App() {
+    const [companyUrl, setCompanyUrl] = useState('');
+    const [competitorUrl, setCompetitorUrl] = useState('');
+    const [companyReport, setCompanyReport] = useState(null);
+    const [competitorReport, setCompetitorReport] = useState(null);
+    const [isLoading, setIsLoading] = useState(false);
+    const [loadingStatus, setLoadingStatus] = useState('');
+    const [error, setError] = useState(null);
+
+    const makeApiCall = async (prompt) => {
+        const payload = {
+            contents: [{ role: "user", parts: [{ text: prompt }] }],
+            generationConfig: { responseMimeType: "application/json" }
+        };
+        const apiKey = ""; // Handled by environment
+        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+
+        const response = await fetch(apiUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+
+        if (!response.ok) {
+            const errorBody = await response.json().catch(() => ({ message: response.statusText }));
+            console.error("API Error Body:", errorBody);
+            throw new Error(`${errorBody?.error?.message || response.statusText}`);
+        }
+
+        const result = await response.json();
+        if (result.candidates && result.candidates.length > 0 && result.candidates[0].content.parts.length > 0) {
+            const text = result.candidates[0].content.parts[0].text;
+            const cleanedText = text.replace(/^```json\n/, '').replace(/\n```$/, '');
+            return JSON.parse(cleanedText);
+        } else {
+            console.error("API returned no candidates, possibly due to a safety block.", result);
+            throw new Error("The model returned an empty response, which may be due to a content safety block.");
+        }
+    };
+
+    // Step 1: Get factual data
+    const getFactualData = (nameOrUrl) => {
+        const prompt = `
+            Based on your knowledge base, provide a factual data report for the company associated with the URL: "${nameOrUrl}".
+            Do NOT analyze or give opinions. Only return known or plausible data.
+            Return a single JSON object.
+
+            JSON Schema:
+            {
+                "brandIdentity": { "primaryColors": ["#hex1"], "fontStyles": ["Font"], "logoDescription": "...", "imageryStyle": "...", "visualConsistencyScore": 1-10 },
+                "messaging": { "homepageHeadline": "...", "valueProposition": "...", "toneOfVoice": "...", "targetCustomer": "...", "mainCTA": "..." },
+                "trust": { "trustSignals": ["..."], "testimonials": "...", "certifications": ["..."] },
+                "seoAndKeywords": { "topKeywords": ["keyword1"], "seoStrength": "Weak | Average | Strong" },
+                "contentStrategy": { "contentMix": { "Educational": 40, "Promotional": 30, "Community": 20, "Culture": 10 } },
+                "crunchbase": { "foundedYear": "...", "founders": ["..."], "location": "...", "lastFundingRound": "...", "totalFunding": "...", "topInvestors": ["..."] },
+                "socialMedia": { "linkedinSummary": "...", "twitterSummary": "...", "socialVoiceConsistencyScore": 1-10 }
+            }
+        `;
+        return makeApiCall(prompt);
+    };
+
+    // Step 2: Get strategic analysis based on factual data
+    const getStrategicTakeaways = (factualData) => {
+        const prompt = `
+            Given the following factual brand data, act as a strategic brand consultant with a mindset like Alex Hormozi.
+            Focus on leverage and actionable insights.
+            Provide a strategic analysis based ONLY on the data provided.
+
+            Factual Data:
+            ${JSON.stringify(factualData, null, 2)}
+
+            Return a single JSON object with your analysis.
+
+            JSON Schema:
+            {
+                "evaluation": { "positioningClarity": "Clear | Moderate | Confusing", "visualBrandingQuality": "Weak | Average | Strong", "buyerResonance": "Low | Moderate | High", "differentiator": "..." },
+                "strategicTakeaways": {
+                    "observedStrengths": "What are the most effective strategies in this data? What elements create the most leverage?",
+                    "potentialOpportunities": "Based on this data, what market gaps or underserved customer needs could a competitor exploit?"
+                }
+            }
+        `;
+        return makeApiCall(prompt);
+    };
+
+    const processCompany = async (url) => {
+        setLoadingStatus(`Retrieving facts for ${url}...`);
+        const factualData = await getFactualData(url);
+        
+        setLoadingStatus(`Analyzing strategy for ${url}...`);
+        const strategicData = await getStrategicTakeaways(factualData);
+
+        return { ...factualData, ...strategicData };
+    };
+
+    const handleAnalyze = async (e) => {
+        e.preventDefault();
+        if (!companyUrl.trim()) {
+            setError("Please enter your company's URL.");
+            return;
+        }
+
+        setIsLoading(true);
+        setError(null);
+        setCompanyReport(null);
+        setCompetitorReport(null);
+
+        try {
+            const companyData = await processCompany(companyUrl);
+            setCompanyReport(companyData);
+
+            if (competitorUrl.trim()) {
+                const competitorData = await processCompany(competitorUrl);
+                setCompetitorReport(competitorData);
+            }
+        } catch (err) {
+            setError(`Analysis failed. The API returned an error: "${err.message}". This can happen due to content policies or if the company is not in the knowledge base. Please try a different URL.`);
+        } finally {
+            setIsLoading(false);
+            setLoadingStatus('');
+        }
+    };
+
+    const BrandReportUI = ({ reportData, companyTitle }) => {
+        if (!reportData) return null;
+        const { brandIdentity, messaging, trust, seoAndKeywords, contentStrategy, crunchbase, socialMedia, strategicTakeaways, evaluation } = reportData;
+
+        return (
+            <div className="space-y-6">
+                <h2 className="text-2xl font-bold text-center text-slate-800 dark:text-slate-100">{companyTitle}</h2>
+                {strategicTakeaways && (
+                    <InfoCard icon={BrainCircuit} title="Strategic Analysis" className="border-indigo-500 border-2">
+                        <StrategicTakeawayCard icon={Copy} title="Observed Strengths" content={strategicTakeaways.observedStrengths} className="bg-green-50 dark:bg-green-900/50 text-green-800 dark:text-green-200" />
+                        <StrategicTakeawayCard icon={Zap} title="Potential Opportunities" content={strategicTakeaways.potentialOpportunities} className="bg-blue-50 dark:bg-blue-900/50 text-blue-800 dark:text-blue-200" />
+                    </InfoCard>
+                )}
+                <div className="grid lg:grid-cols-2 gap-6">
+                    {brandIdentity && <InfoCard icon={Briefcase} title="Brand Identity"><KeyValueRow label="Primary Colors" value={<div className="flex gap-2 justify-end">{brandIdentity.primaryColors.map(c => <div key={c} className="w-5 h-5 rounded-full border border-slate-300" style={{ backgroundColor: c }}></div>)}</div>} /><KeyValueRow label="Font Styles" value={brandIdentity.fontStyles.join(', ')} /><KeyValueRow label="Logo" value={brandIdentity.logoDescription} /><KeyValueRow label="Imagery" value={brandIdentity.imageryStyle} /><ScoreBar score={brandIdentity.visualConsistencyScore} label="Visual Consistency" colorClass="bg-sky-500" /></InfoCard>}
+                    {messaging && <InfoCard icon={MessageSquare} title="Messaging & Positioning"><KeyValueRow label="Headline" value={`"${messaging.homepageHeadline}"`} /><KeyValueRow label="Value Prop." value={messaging.valueProposition} /><KeyValueRow label="Tone" value={<Tag text={messaging.toneOfVoice} />} /><KeyValueRow label="Target" value={<Tag text={messaging.targetCustomer} className="bg-teal-100 text-teal-800 dark:bg-teal-900 dark:text-teal-300" />} /><KeyValueRow label="Main CTA" value={<Tag text={messaging.mainCTA} className="bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-300" />} /></InfoCard>}
+                    {seoAndKeywords && <InfoCard icon={Target} title="SEO & Keywords"><KeyValueRow label="Strength" value={seoAndKeywords.seoStrength} /><KeyValueRow label="Keywords" value={<div className="flex flex-wrap gap-1 justify-end">{seoAndKeywords.topKeywords.map(k=><Tag key={k} text={k} />)}</div>} /></InfoCard>}
+                    {contentStrategy && <InfoCard icon={PieChart} title="Content Strategy"><ContentStrategyChart mix={contentStrategy.contentMix} /></InfoCard>}
+                    {crunchbase && <InfoCard icon={Building} title="Crunchbase Snapshot"><KeyValueRow label="Founded" value={crunchbase.foundedYear} /><KeyValueRow label="Founders" value={crunchbase.founders.join(', ')} /><KeyValueRow label="Location" value={crunchbase.location} /><KeyValueRow label="Funding" value={`${crunchbase.lastFundingRound} (${crunchbase.totalFunding} total)`} /></InfoCard>}
+                    {socialMedia && trust && <InfoCard icon={ThumbsUp} title="Social & Trust"><KeyValueRow label="Trust Signals" value={trust.trustSignals.join(', ')} /><KeyValueRow label="Testimonials" value={trust.testimonials} /><ScoreBar score={socialMedia.socialVoiceConsistencyScore} label="Social Voice Consistency" colorClass="bg-green-500" /></InfoCard>}
+                </div>
+            </div>
+        );
+    };
+
+    return (
+        <div className="bg-slate-50 dark:bg-slate-900 min-h-screen font-sans">
+            <div className="container mx-auto px-4 py-8 md:py-12">
+                <header className="text-center max-w-3xl mx-auto mb-8">
+                    <h1 className="text-4xl md:text-5xl font-bold text-slate-800 dark:text-slate-100 tracking-tight">Brand Intelligence Assistant</h1>
+                    <p className="mt-4 text-lg text-slate-600 dark:text-slate-400">
+                        Get an AI-generated brand analysis for any company. Enter a URL to generate a report based on the AI's extensive knowledge base.
+                    </p>
+                </header>
+
+                <div className="max-w-3xl mx-auto">
+                    <form onSubmit={handleAnalyze} className="grid grid-cols-1 md:grid-cols-2 gap-4 items-end">
+                        <div className="relative">
+                            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Your Company URL</label>
+                            <Link className="absolute bottom-3 left-3 w-5 h-5 text-slate-400" />
+                            <input type="text" value={companyUrl} onChange={(e) => setCompanyUrl(e.target.value)} placeholder="e.g., 'yourbrand.com'" className="w-full pl-10 pr-4 py-3 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-sky-500 focus:outline-none transition" />
+                        </div>
+                        <div className="relative">
+                            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Competitor URL</label>
+                            <Link className="absolute bottom-3 left-3 w-5 h-5 text-slate-400" />
+                            <input type="text" value={competitorUrl} onChange={(e) => setCompetitorUrl(e.target.value)} placeholder="e.g., 'competitor.com'" className="w-full pl-10 pr-4 py-3 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-sky-500 focus:outline-none transition" />
+                        </div>
+                        <button type="submit" disabled={isLoading} className="md:col-span-2 flex items-center justify-center gap-2 bg-sky-600 text-white font-semibold px-6 py-3 rounded-lg hover:bg-sky-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-500 disabled:bg-slate-400 disabled:cursor-not-allowed transition-all duration-200">
+                            {isLoading ? <><Wind className="animate-spin w-5 h-5" /> {loadingStatus || 'Analyzing...'}</> : <><Search className="w-5 h-5" /> Analyze Brands</>}
+                        </button>
+                    </form>
+                    {error && <p className="text-red-500 mt-4 text-center">{error}</p>}
+                </div>
+
+                <main className="mt-8">
+                    {isLoading && !companyReport && <LoadingSpinner status={loadingStatus} />}
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
+                        <BrandReportUI reportData={companyReport} companyTitle="Your Brand" />
+                        <BrandReportUI reportData={competitorReport} companyTitle="Competitor" />
+                    </div>
+                </main>
+            </div>
+        </div>
+    );
+}
